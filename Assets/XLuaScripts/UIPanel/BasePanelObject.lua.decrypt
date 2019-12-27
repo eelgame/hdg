@@ -1,0 +1,106 @@
+--[[
+	@author : Mingming
+	@date 	: 2017-05-31 15:20:49
+	@desc 	:
+	FairyGUI的Lua基类管理器
+]]
+
+BasePanelObject = {}
+BasePanelObject.__index = BasePanelObject
+
+function BasePanelObject.New(table)
+	BasePanelObject.Class = BasePanelObject
+	BasePanelObject.Name = "BasePanelObject"
+	BasePanelObject.isInit=false
+
+	if getmetatable(table)~=BasePanelObject then
+		setmetatable(table,BasePanelObject)
+		table.CompleteOnHideCallback = function()
+			table.OnHide()
+			BasePanelObject.OnHideBase(table)
+		end
+		table.CompleteOnShowCallback = function()
+			table.OnShown()
+			BasePanelObject.OnShownBase(table)
+		end
+	end
+		CS.UILuaWindowBase.m_CurrentTable = table[1]
+		CS.UILuaWindowBase.AddFairyGUIPackage(table.packageName)
+		CS.UILuaWindowBase.AddFairyGUIPackage('AudioClip')
+		CS.UILuaWindowBase.AddFairyGUIPackage('BaseNew')
+		CS.UILuaWindowBase.AddFairyGUIPackage('base')
+		CS.UILuaWindowBase.AddFairyGUIPackage('SequenceFrames')
+		table.PanelCtrl = CS.UILuaWindowBase.CreateLuaPanel(table.panelName,table.packageName, table.componentName,table)
+		table.contentPane=table.PanelCtrl.contentPane;
+		if table.contentPane ~= nil then
+			table.contentPane:SetSize(GRoot.inst.width, GRoot.inst.height, false);
+			table.contentPane:Center();
+			table.CoverBg = table.contentPane:GetChild("CoverBG");
+			if table.CoverBg ~= nil then
+				table.CoverBg.onClick:Set(function ()
+					if not((os.time()- table.time) > 0.2) then return end
+					CS.UILuaWindowBase.HideWindow(table.panelName);
+				end)
+			end
+		end
+	table.time = os.time()
+
+
+end
+
+function BasePanelObject:OnHide() end
+
+function BasePanelObject:OnHideBase()
+	self.PanelCtrl=nil
+	self.contentPane=nil
+	self.CoverBg=nil
+	self.time=nil
+	--print("第一次"..collectgarbage("count"))
+	CS.UIPackageManager.inst:RemovePackage(self.packageName);
+	collectgarbage("collect")--显式回收内存（没有被引用的局部变量）
+	--print("第二次gc回收"..collectgarbage("count"))
+end
+
+function BasePanelObject:OnShownBase() end
+
+function BasePanelObject:OnShown() end
+
+function BasePanelObject:OpenPanel()
+	self:OpenPanelBase()
+end
+function BasePanelObject:OpenPanelBase()
+	if self.UIShowFunc ~= nil then
+		--print( self.UIShowFunc)
+		self.PanelCtrl:OnOpenPanel(self.UIShowFunc)
+	else
+		self.PanelCtrl:OnOpenPanel(nil)
+	end
+
+end
+
+function BasePanelObject:ClosePanel()
+	self.PanelCtrl:ClosePanelBase()
+end
+function BasePanelObject:ClosePanelBase()
+	self.PanelCtrl:OnClosePanel()
+end
+
+function BasePanelObject:PlayOpenPanelAni(aniName,callback)
+	self.PanelCtrl:PlayOpenPanelAni("OpenPanel",callback)
+end
+
+function BasePanelObject.AddGaryBackground(pos)
+	if(pos == nil) then
+		pos = BasePanelObject.PanelCtrl.contentPane.size * 0.5
+	end
+	local garyBackground = BasePanelObject.PanelCtrl:AddGaryBackground()--添加半透明遮罩
+	garyBackground.xy = pos
+end
+
+function BasePanelObject:AddListeners()
+
+end
+
+function BasePanelObject:RemoveListeners()
+
+end

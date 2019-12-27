@@ -1,0 +1,46 @@
+--[[
+	@author : Mingming
+	@date 	: 2017-6-7 11:56:22
+	@desc 	:
+	奖励相关的Panel
+]]
+
+RewardPanel = {}
+
+function RewardPanel.Create()
+	local this = BasePanelObject.Create()
+	this.Class = RewardPanel
+	this.Name = "RewardPanel"
+	
+	this.GoodsList = {}
+	
+	function this.Init()
+		
+	end
+	--[[
+		createIconCallback回调方法有一个参数即为当前物品
+		例如：{Id = 1000 , Num = 10}
+		在创建的回调函数中创建Icon，解除必要的耦合，还可以复用
+	]]
+	function this.SetRewardList(goodsList,createIconCallback)
+		
+		--遍历奖励数组，创建奖励物品	
+		for k,v in ipairs(goodsList) do
+			local rewardIcon = createIconCallback(good)
+			--此处使用repeat until true 实现C++中continue关键字特性
+			repeat
+				if(rewardIcon == nil) then
+					break
+				end
+				table.insert(this.GoodsList,rewardIcon)
+			until true
+		end
+	end
+	
+	function this.SetConfirmCallback(callback)
+		
+	end
+	
+	this.Init()
+	return this
+end

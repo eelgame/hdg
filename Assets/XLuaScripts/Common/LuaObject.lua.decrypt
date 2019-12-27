@@ -1,0 +1,161 @@
+--[[
+	@author : Mingming
+	@date 	: 2017-05-31 15:20:49
+	@desc 	:
+	Lua的Object
+]]
+
+LuaObject = {}
+
+local function Pototype(obj, funcName)
+	local key = "pototype_" .. funcName
+	local function __innerCall(table, ...)
+		local v = table[key]
+		if(v) then
+			for i=1,#v do
+				local fn = v[i]
+				fn(table,unpack(arg))
+			end
+		end
+	end
+
+	if(not obj[key]) then
+		obj[key] = {}
+	end
+	if(obj[funcName]) then
+		table.insert(obj[key], obj[funcName])
+	end
+
+	return __innerCall
+end
+
+LuaObject.Create = function()
+	local this = {}
+	this.Class = LuaObject
+	this.Name = "LuaObject"
+	this.__index = this
+	this.Pototype = Pototype
+
+	function this.InstanceOf(Class)
+		return this.Class == Class
+	end
+
+	function this.Trace(msg)
+		-- 打印数据
+		require("LuaDebug")
+		LuaDebug.Trace(msg)
+	end
+
+	return this
+end
+
+function LuaObject.InterfaceImpl(obj, interface)
+	for k,v in pairs(interface) do
+		obj[k] = v
+	end
+end
+--[[
+	用这个方法快速创建Singleton方法
+	@param Class 类名，接受规范中的OOP框架中的class，需要有Create方法，支持参数
+	@param fnInit 如果需要额外的初始化方法处理，可以在这里自定义，否则可以不传递
+
+	Test = {}
+	function Test.Create(x,y)
+		--body
+		local this = LuaObject.Create()
+		return this
+	end
+
+	LuaObject.SingletonMake(Test)
+	Test.GetInstance(10,20) -- 这里的参数会传递给构造函数
+
+	----------------------
+
+	TestB = {}
+	function TestB.Create()
+		--body
+	end
+
+	LuaObject.SingletonMake(TestB, function(b) b.Name = "TestB" end)
+	TestB.GetInstance().Name --"TestB"
+]]
+function LuaObject.SingletonMake(Class, fnInit)
+	function Class.GetInstance(...)
+		if(not Class.instance) then
+			if(arg) then
+				Class.instance = Class.Create(unpack(arg))
+			else
+				Class.instance = Class.Create()
+			end
+			if(fnInit) then
+				fnInit(Class.instance)
+			end
+		end
+
+		return Class.instance
+	end
+end
+
+
+
+
+
+--[[
+	创建模板
+	function 类名.Create(...)
+		local this = LuaObject.Create()
+		this.Class = 类名
+		this.Name = "类名"
+		------------------------------
+		--body
+		------------------------------
+
+		return this
+	end
+
+	作为基类被继承，创建对象
+	Create作为工厂的New方法，派生类按照这个规范命名
+
+	派生类示例
+	ChildClass = {}
+
+	ChildClass.Create = function()
+		local this = LuaObject.Create() --相当于调度基类的构造方法
+		this.Class = ChildClass
+		this.Name = "ChildClass"
+
+		this.x = 10
+		this.y = 20
+		
+		function this:Update(t)
+			this.x = this.x + 1
+		end
+
+		return this
+	end
+
+
+	override示例
+	GrandsonClass = {}
+	GrandsonClass.Create = function()
+		local this = ChildClass.Create() --调用基类的构造方法
+		this.Class = GrandsonClass
+		this.Name = "GrandsonClass"
+		this.z = 0
+		--这里相当于override了基类的Update方法
+		this.superUpdate = this.Update
+		function this:Update(t)
+			--调用基类的方法，必要情况下
+			this:superUpdate(t)
+			this.z = this.z + 1
+
+		end
+		return this
+	end
+
+	如果需要使用GetInstance方法，可以这样写
+	LuaObject.SingletonMake(GrandsonClass)
+	local v = GrandsonClass.GetInstance()
+]]
+
+

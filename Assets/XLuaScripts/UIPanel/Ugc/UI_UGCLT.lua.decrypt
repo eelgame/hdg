@@ -1,0 +1,166 @@
+
+
+UI_UGCLT=classUtlis()
+
+function UI_UGCLT:ctor(item)
+    self.item=item
+	self.m_TicketResourceButton = self.item:GetChild("TicketResourceButton")
+	self.m_TicketResourceButtonState = self.m_TicketResourceButton:GetController("jiahao")
+	self.m_TicketResourceButton_dianchi_bg = self.m_TicketResourceButton:GetChild("bg")
+	self.m_TicketResourceButton_TimeText = self.m_TicketResourceButton:GetChild("TimeText")
+	self.m_TicketResourceButton_num = self.m_TicketResourceButton:GetChild("num")
+	self.m_TicketResourceButton_crossbutton =self.m_TicketResourceButton:GetChild("n80")
+	self.m_TicketResourceButton_dianchi_num_list = self.m_TicketResourceButton:GetChild("dianchi_num_list");
+	self.m_TicketResourceButton_PowerFullState = self.m_TicketResourceButton:GetController("PowerFullState")
+	self.m_UGCLT_State = self.item:GetController("state")
+	self.m_GoldResourceButton = self.item:GetChild("GoldResourceButton")
+	self.m_GoldResourceButtonState = self.m_GoldResourceButton:GetController("jiahao")
+	self.m_GoldResourceButton_title =self.m_GoldResourceButton:GetChild("title")
+	self.m_TokenButton = self.item:GetChild("TokenButton")
+	self.m_TokenButton_title = self.m_TokenButton:GetChild("title")
+	self.m_magicPotionButton = self.item:GetChild("MagicPotionButton")
+	self.m_magicPotionButtonState = self.m_magicPotionButton:GetController("jiahao")
+	self.m_magicPotionButton_title = self.m_magicPotionButton:GetChild("title")
+	self.m_UGCLT_in = self.item:GetTransition("in")
+	self.m_UGCLT_out = self.item:GetTransition("out")
+	self.m_TicketResourceButton.onClick:Add(function()
+		CS.UIWindowViewManager.ShowWindowByLua("UI_GetPower")
+	end)
+	self.m_GoldResourceButton.onClick:Add(function()
+		CS.EventCtrl.inst:LuaTriggerEvent("HANDLE_WINDOW_OPENPAYSHOP","int",{1})
+	end)
+	self.m_magicPotionButton.onClick:Add(function()
+		CS.EventCtrl.inst:LuaTriggerEvent("HANDLE_WINDOW_OPENPAYSHOP","int",{1})
+	end)
+	self.item.fairyBatching=true
+	--UI_UGCLT.InitResInfo()
+end
+
+function UI_UGCLT:SetUGCLTState(index)
+	self.m_UGCLT_State.selectedIndex = index
+end
+
+function UI_UGCLT:SetUGCLTBtnState(index)
+	self.m_magicPotionButtonState.selectedIndex = index
+	self.m_GoldResourceButtonState.selectedIndex = index
+	self.m_TicketResourceButtonState.selectedIndex = index
+end
+
+function UI_UGCLT:RefreshPowerInfo()
+	local actionPoint = CS.MyPlayerInfo.Instance.TicketCount
+	local m_cdTime = CS.MatchTreeProxy.inst:GetTicketCDTime()
+	local m_maxTime = CS.MatchTreeProxy.inst:GetTicketMaxTime()
+	local WorldParconfig= CS.WorldParconfigManager.Instance():GetConfig(10101)
+	self.m_TicketResourceButton_dianchi_num_list.numItems = actionPoint<5 and actionPoint or 5
+	self.m_TicketResourceButton_num.text = actionPoint<5 and actionPoint or 5
+	--print("TicketCount--"..actionPoint)
+	--print("self.m_TicketResourceButton.m_num.text---"..self.m_TicketResourceButton_num.text)
+	print("m_maxTime:"..tostring(m_maxTime))
+	local m_timeCD = nil
+	if WorldParconfig~=nil then
+		if m_maxTime == 0 then
+			if actionPoint >= 5 then
+				if m_timeCD~=nil then
+					m_timeCD:Stop()
+				end
+				self.m_TicketResourceButton_TimeText.text = ""
+				self.m_TicketResourceButton_PowerFullState.selectedIndex = 0
+			else
+				self.m_TicketResourceButton_PowerFullState.selectedIndex  = 1
+				m_timeCD = CS.TimeCoolDown:Begin(self.m_TicketResourceButton_TimeText,m_cdTime)
+				if m_timeCD~=nil then
+					m_timeCD.mTimeType = CS.TimeCoolDown.TimeType.FormatTimeSpanMS;
+					--m_timeCD.OnFinish =  CS.DelegateToLua.SetDelegate(m_timeCD.OnFinish,"",function() CS.MatchTreeProxy.inst:SendAction() end)
+					m_timeCD.OnFinish = function()
+						CS.MatchTreeProxy.inst:SendAction()
+					end
+				end
+			end
+			--print("UI_UGCLT:m_cdTime"..tostring(m_cdTime))
+		else
+			self.m_TicketResourceButton_PowerFullState.selectedIndex = 2
+			--self.m_TicketResourceButton.title  = "∞"
+			self.m_TicketResourceButton_num.text = "∞"
+			print("maxTime:"..tostring(m_maxTime))
+			m_timeCD = CS.TimeCoolDown:Begin(self.m_TicketResourceButton_TimeText,m_maxTime)
+			if UI_UGCLT~=nil then
+				m_timeCD.mTimeType = CS.TimeCoolDown.TimeType.FormatTimeSpanMS
+				--m_timeCD.OnFinish =  CS.DelegateToLua.SetDelegate(m_timeCD.OnFinish,"",function() CS.MatchTreeProxy.inst:SendAction() end )
+				m_timeCD.OnFinish = function()
+					CS.MatchTreeProxy.inst:SendAction()
+				end
+			end
+			--print("UI_UGCLT:m_maxTime"..tostring(m_maxTime))
+		end
+	end
+end
+--[[
+function UI_UGCLT:UITokenCoinInfo()
+	local ret = CellLinkSystem.CallContractFunction(false,CellLinkSystem.TokenContractAddress,CellLinkSystem.masterKeyName,CellLinkSystem.pathKey, 1, CellLinkSystem.masterKeyName,CellLinkSystem.pathKey,"getBalanceof",{CellLinkSystem.rawAddress},CellLinkSystem.rawAddress,false)
+	if ret~=false then
+		local str =  string.sub(ret,string.find(ret,',')+1,string.find(ret,']')-1)
+        if CS.UnityEngine.Application.platform == CS.UnityEngine.RuntimePlatform.Android or CS.UnityEngine.Application.platform == CS.UnityEngine.RuntimePlatform.IPhonePlayer then
+            str = string.sub(str,string.find(str,"\n")+1)
+        else
+            str = string.sub(str,string.find(str,"\r\n")+2)
+        end
+        str = string.gsub(str,"^%s*(.-)%s*$","%1")
+        tb.m_TokenButton.title = str
+        CellLinkSystem.Coin = str;
+    else
+        tb.m_TokenButton.title = 0
+    end
+end]]
+function UI_UGCLT:InitResInfo()
+	self.m_magicPotionButton.title = CS.GUIHelper.InsertSymbolToString(CS.MyPlayerInfo.Instance.EnergyCount,3)
+	self.m_GoldResourceButton.title = CS.GUIHelper.InsertSymbolToString(CS.MyPlayerInfo.Instance.Gold,3)
+	self.m_TokenButton.title = CS.GUIHelper.InsertSymbolToString(CS.MyPlayerInfo.Instance.CellCoin,3)
+	print(self.m_TokenButton_title.text)
+end
+function UI_UGCLT:RefreshEnergyInfo()
+	--self.m_magicPotionButton_title.text = CS.GUIHelper.InsertSymbolToString(CS.MyPlayerInfo.Instance.EnergyCount,3)
+	CS.GUIHelper.OnUpdateNum(self.m_magicPotionButton,CS.MyPlayerInfo.Instance.EnergyCount,6)
+end
+
+function UI_UGCLT:RefreshGoldInfo()
+	--self.m_GoldResourceButton_title.text = CS.GUIHelper.InsertSymbolToString(CS.MyPlayerInfo.Instance.Gold,3)
+	print("RefreshGoldInfo"..self.m_GoldResourceButton.text)
+	CS.GUIHelper.OnUpdateNum(self.m_GoldResourceButton,CS.MyPlayerInfo.Instance.Gold,6)
+end
+
+function UI_UGCLT:RefreshTokenCoinInfo()
+	--self.m_TokenButton_title.text = CS.GUIHelper.InsertSymbolToString(CS.MyPlayerInfo.Instance.CellCoin,3
+	CS.GUIHelper.OnUpdateNum(self.m_TokenButton,CS.MyPlayerInfo.Instance.CellCoin,6)
+end
+
+function UI_UGCLT:ShowAndHide(isShow)
+	if isShow then
+		self.m_UGCLT_in:Play()
+	else
+		self.m_UGCLT_out:Play()
+	end
+end
+
+function UI_UGCLT:Dispose()
+	self.item=nil
+	self.m_TicketResourceButton = nil
+	self.m_TicketResourceButtonState =nil
+	self.m_TicketResourceButton_dianchi_bg = nil
+	self.m_TicketResourceButton_TimeText =nil
+	self.m_TicketResourceButton_num =nil
+	self.m_TicketResourceButton_crossbutton =nil
+	self.m_TicketResourceButton_dianchi_num_list =nil
+	self.m_TicketResourceButton_PowerFullState = nil
+	self.m_UGCLT_State = nil
+	self.m_GoldResourceButton = nil
+	self.m_GoldResourceButtonState = nil
+	self.m_GoldResourceButton_title =nil
+	self.m_TokenButton =nil
+	self.m_TokenButton_title = nil
+	self.m_magicPotionButton = nil
+	self.m_magicPotionButtonState = nil
+	self.m_magicPotionButton_title =nil
+	self.m_UGCLT_in = nil
+	self.m_UGCLT_out = nil
+
+end

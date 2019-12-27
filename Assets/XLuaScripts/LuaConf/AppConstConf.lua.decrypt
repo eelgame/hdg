@@ -1,0 +1,41 @@
+--[[
+	@author : Mingming
+	@date 	: 2017-06-05 10:14:07
+	@desc 	:
+	全局参数配置
+	
+]]
+require("LuaScripts/EnvConf/EnvConfig")
+
+AppConstConf = {}
+
+--运行环境
+AppConstConf.AppEnvMode = 1
+
+function AppConstConf.InitEnvConfig()
+	if(APP_ENV_NAME == "publish") then
+		AppConstConf.InitPublishConfig()
+	elseif(APP_ENV_NAME == "prepublish") then
+		AppConstConf.InitPrePublishConfig()
+	elseif(APP_ENV_NAME == "debug") then
+		AppConstConf.InitDebugConfig()
+	else
+		AppConstConf.InitOtherConfig()
+	end
+end
+
+function AppConstConf.InitPublishConfig()
+	AppConstConf.SHOW_LUA_ERROR = false
+end
+
+function AppConstConf.InitPrePublishConfig()
+	AppConstConf.SHOW_LUA_ERROR = false
+end
+function AppConstConf.InitDebugConfig()
+	AppConstConf.SHOW_LUA_ERROR = true
+end
+
+function AppConstConf.InitOtherConfig()
+	AppConstConf.SHOW_LUA_ERROR = true
+end
+

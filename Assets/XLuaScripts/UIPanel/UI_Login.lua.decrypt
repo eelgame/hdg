@@ -1,0 +1,33 @@
+
+UI_Login={}
+UI_Login.__index = UI_Login
+function UI_Login.New()
+	tb = {}
+	BasePanelObject.New(tb,"UI_Login","登陆","UILogin")--panelName,packageName,componentName,callback
+	--setmetatable(UI_Login,getmetatable(base))
+	UI_Login.Class = UI_Login
+	UI_Login.className = "UI_Login"
+	UI_Login.Init()
+	--setmetatable(tb,UI_Login)
+	for key, value in pairs(UI_MainCity) do
+		tb[key] = value--遍历object和递归_copy(value)把每一个表中的数据都复制出来
+	end
+	return tb;
+end
+
+function UI_Login.Init()
+	--print('init')
+	UI_Login.m_state = UI_Login.contentPane:GetController("state")
+	UI_Login.m_login_1 = UI_Login.contentPane:GetChild("login_1")
+	UI_Login.m_zhanghao = UI_Login.m_login_1:GetChild("zhanghaodenglu") --账号登陆
+	UI_Login.m_zhanghao.onClick:Add(UI_Login.OnClickZhanghao)
+end
+
+function UI_Login:OpenPanel()
+	self:OpenPanelBase()
+
+end
+
+function UI_Login:OnClickZhanghao()
+	self.m_state.selectedIndex=1
+end

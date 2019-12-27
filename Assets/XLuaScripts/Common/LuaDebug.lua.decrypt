@@ -1,0 +1,52 @@
+--[[
+	@author : Mingming
+	@date 	: 2017-05-31 15:20:49
+	@desc 	:
+	Lua的Debug类
+]]
+LuaDebug = {}
+
+function LuaDebug.Warning(msg)
+	if(msg == nil) then
+		print("[Lua Warning] : msg Is Null Trace:" .. debug.traceback())
+		return
+	end
+
+	print("[Lua Warning] : " .. msg .."\n" .. "Trace:" .. debug.traceback())
+end
+
+function LuaDebug.Error(msg)
+	if(msg == nil) then
+		print("[Lua Error] : msg Is Null Trace:" .. debug.traceback())
+		return
+	end
+
+	print("[Lua Error] : " .. msg .."\n" .. "Trace:" .. debug.traceback())
+end
+
+function LuaDebug.Trace(msg)
+	if(msg == nil) then
+		print("[Lua Trace] : msg Is Null Trace:" .. debug.traceback())
+		return
+	end
+
+	print("[Lua Trace] : " .. msg .."\n" .. "Trace:" .. debug.traceback())
+end
+
+function LuaDebug.Info(msg)
+	if(msg == nil) then
+		print("[Lua Info] : msg Is Null Trace:" .. debug.traceback())
+		return
+	end
+
+	print("[Lua Info] : " .. msg .."\n" .. "Trace:" .. debug.traceback())
+end
+
+function LuaDebug.Debug(msg)
+	if(msg == nil) then
+		print("[Lua Debug] : msg Is Null Trace:" .. debug.traceback())
+		return
+	end
+
+	print("[Lua Debug] : " .. msg .."\n" .. "Trace:" .. debug.traceback())
+end

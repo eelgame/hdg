@@ -1,0 +1,38 @@
+local UI_Carrot=class("UI_Carrot")
+json = require('Libs.json.json')
+function UI_Carrot:Ctor()
+	local this={};
+	this.Class = UI_Carrot
+	this.Name = 'UI_Carrot'
+	CS.UnityEngine.Debug.Log('hello world ')
+--[[	CS.UILuaWindowBase.AddFairyGUIPackageByBundle('胡萝卜活动',function(a)
+	print('succeed!'..a)
+	end)]]--
+	CS.UILuaWindowBase.AddFairyGUIPackage('胡萝卜活动')
+	this.PanelCtrl = CS.UILuaWindowBase.CreateLuaPanel('UI_Carrot', '胡萝卜活动', 'UICarrot')
+	this.PanelCtrl:OnOpenPanel()
+	local bg= this.PanelCtrl.contentPane:GetChild("baoxiang0")
+	bg.onClick:Add(UI_Carrot.OnClickBox)
+	Event.AddListener(MsgType.LoginRspdCMD, UI_Carrot.OnLoginRspd)
+	test = {
+  one='first',two='second',three={2,3,5}
+  }
+  jsonTest = json.encode(test)
+  result = json.decode(jsonTest)
+	if  _G.next(result)~=nil then
+	print ("The decoded table result:"..result['one'])
+	end
+
+
+--CS.UIWindowViewManager.ShowWindowByLua("UI_Carrot");
+end
+function UI_Carrot:OnLoginRspd(...)
+local temp={ ... }
+args=temp[1]
+print('OnLoginRspd:'..args[1]..'_'..args[2])
+end
+function UI_Carrot:OnClickBox()
+CS.UIWindowViewManager.ShowWindowByLua("UI_BuyProp")
+print('click eat12')
+end
+ local carrotWin= UI_Carrot.New()

@@ -1,0 +1,6 @@
+LuaBaseRspd={}
+function LuaBaseRspd.New()
+	this={}
+	this.result=100
+	return this
+end

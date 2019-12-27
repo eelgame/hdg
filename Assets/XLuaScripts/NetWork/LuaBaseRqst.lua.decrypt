@@ -1,0 +1,10 @@
+LuaBaseRqst={}
+function LuaBaseRqst.New()
+	this={}
+function this.Send()
+	local JsonParams=this.GetJsonParams()
+	local EncodeJsonParams=this.Encode()
+	CS.MsgDispatcher.Instance:SendLuaMsg(this.URL,JsonParams,EncodeJsonParams)
+end
+	return this
+end

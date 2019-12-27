@@ -1,0 +1,38 @@
+AccountModel={}
+AccountModel.instance=nil
+AccountModel.__index = AccountModel;
+function AccountModel:getInstance()
+if not AccountModel.instance then 
+	AccountModel.instance=AccountModel.New()
+end
+return AccountModel.instance
+end
+
+function AccountModel.New()
+	BaseModelObject.New(AccountModel)
+	--setmetatable(AccountModel,getmetatable(base))
+	AccountModel.Class = AccountModel
+	AccountModel.Name = 'AccountModel'
+	tb = {}
+	setmetatable(tb,AccountModel)
+	return tb;
+end
+
+function AccountModel.OnEnter()
+	--print("OnEnter:"..AccountModel.Name)
+	--Event.AddListener('33', AccountModel.OnGCLoginRspd)
+end
+function AccountModel.OnReadModel()
+
+end
+function AccountModel.OnExit()
+
+end
+function AccountModel.OnUpdate()
+
+end
+function AccountModel.OnGCLoginRspd(...)
+    local	rspd=MsgType.GCLoginRspd:New(...)
+	print("AccountModel errorCode"..rspd.errorCode)
+end
+

@@ -1,0 +1,27 @@
+--[[
+	@author : Mingming
+	@date 	: 2017-05-31 15:20:49
+	@desc 	:
+	FairyGUI的Lua基类管理器
+]]
+
+BaseControlerObject = {}
+BaseControlerObject.__index = BaseControlerObject;
+
+function BaseControlerObject.New()
+	BaseControlerObject.Class = BaseControlerObject
+	BaseControlerObject.Name = "BaseControlerObject"
+	tb = {}
+	setmetatable(tb,BaseControlerObject)
+	return tb;
+end
+
+function BaseControlerObject.OnEnter()
+
+end
+function BaseControlerObject.OnExit()
+
+end
+function BaseControlerObject.OnUpdate()
+
+end

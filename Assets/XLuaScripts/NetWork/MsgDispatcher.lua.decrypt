@@ -1,0 +1,25 @@
+Event = require"Common.events"
+local MsgDispatcher=classUtlis()
+function MsgDispatcher:ctor()
+    for i,v in pairs(MsgTypeCmd) do
+        CS.MsgDispatcher.Instance:AddLuaEventRouter(tonumber(v))
+    end
+    --Event.AddListener(MsgType.LoginRspdCMD, self.OnLoginRspd)
+end
+--[[事件监听函数事件库原因不可以直接调用 
+function MsgDispatcher:OnLoginRspd(...)
+local temp={ ... }
+args=temp[1]
+print('OnLoginRspd:'..args[1]..'_'..args[2])
+end
+]]
+local Dispatcher=MsgDispatcher.new();
+function DispatcherMsg(cmd,strjson)
+    CS.SDKManager.inst:SDKLog("CSharp Call Command："..cmd..':'..strjson);
+    Event.Brocast(cmd,cmd,strjson);
+end
+
+function BrocastMsg(cmd,msg)
+    CS.SDKManager.inst:SDKLog("BrocastMsg："..cmd..':'..msg);
+    Event.Brocast(cmd,msg);
+end

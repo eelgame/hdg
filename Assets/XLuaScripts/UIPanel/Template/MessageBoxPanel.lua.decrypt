@@ -1,0 +1,77 @@
+--[[
+	@author : Mingming
+	@date 	: 2017-6-7 11:24:15
+	@desc 	:
+	MessageBox模态对话框
+]]
+
+MessageBoxPanel = {}
+
+MessageBoxPanel.Align = {
+	Left = CS.FairyGUI.AlignType.Left,
+	Center = CS.FairyGUI.AlignType.Center,
+	Right = CS.FairyGUI.AlignType.Right
+}
+
+MessageBoxPanel.VerticalAlign = {
+	Top = CS.FairyGUI.VertAlignType.Top,
+	Middle = CS.FairyGUI.VertAlignType.Middle,
+	Bottom = CS.FairyGUI.VertAlignType.Bottom
+}
+
+function MessageBoxPanel.Create()
+	local this = BasePanelObject.Create()
+	this.Class = MessageBoxPanel
+	this.Name = "MessageBoxPanel"
+	
+	function this.Init()
+		LuaDebug.Debug("MessageBoxPanel Init ")
+		this.PanelCtrl = CS.GameBasePanel.CreateLuaPanel("MessageBoxPanel","UI_Common","MessageBox")
+		this.MsgLabel = this.PanelCtrl.m_mainUI:GetChild("msgLabel"):GetChild("msgLabel")
+		this.TitleLabel = this.PanelCtrl.m_mainUI:GetChild("titleLabel")
+		this.ConfirmBtn = this.PanelCtrl.m_mainUI:GetChild("confirmBtn")
+		this.CancelBtn = this.PanelCtrl.m_mainUI:GetChild("cancelBtn")
+		this.PanelCtrl.m_mainUI:SetXY(GRoot.inst.viewWidth * 0.5,GRoot.inst.viewHeight * 0.5)
+	end
+	
+	function this.SetMsgTitle(title)
+		this.TitleLabel.text = title
+	end
+	
+	function this.SetMsg(msg)
+		this.MsgLabel.text = msg
+	end
+	
+	function this.SetConfirmCallback(callback)
+		LuaDebug.Debug("MessageBoxPanel SetConfirmCallback ")
+		this.ConfirmBtn.onClick:Add(callback)
+	end
+
+	function this.SetCancelCallback(callback)
+		LuaDebug.Debug("MessageBoxPanel SetCancelCallback ")
+		this.CancelBtn.onClick:Add(callback)
+	end
+	--[[
+	左右对齐
+	CS.FairyGUI.AlignType.Left
+	CS.FairyGUI.AlignType.Center
+	CS.FairyGUI.AlignType.Right
+	]]
+	function this.SetAlign(type)
+		-- body
+		this.MsgLabel.align = type
+	end
+	--[[
+	上下对齐
+	CS.FairyGUI.VertAlignType.Top
+	CS.FairyGUI.VertAlignType.Middle
+	CS.FairyGUI.VertAlignType.Bottom
+	]]
+	function this.SetVerticalAlign(type)
+		-- body
+		this.MsgLabel.verticalAlign = type
+	end
+	
+	this.Init()
+	return this
+end

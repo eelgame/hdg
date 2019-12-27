@@ -1,0 +1,47 @@
+AccountControler={}
+AccountControler.instance=nil
+AccountControler.__index = AccountControler;
+
+function AccountControler.getInstance()
+	if not AccountControler.instance then
+		AccountControler.instance=AccountControler.New()
+	end
+	return AccountControler.instance
+end
+
+function AccountControler.New()
+	local base =BaseControlerObject.New()
+	setmetatable(AccountControler,getmetatable(base))
+	AccountControler.Class = AccountControler
+	AccountControler.Name = 'AccountControler'
+	tb = {}
+	AccountControler.OnEnter()
+	setmetatable(tb,AccountControler)
+	return tb;
+end
+
+
+function AccountControler.OnEnter()
+	--print("OnEnter:"..AccountControler.Name)
+	--Event.AddListener(tostring(MsgTypeCmd.GC_LoginRspd), AccountControler.OnLoginRspd)
+end
+
+function AccountControler.OnExit()
+
+end
+function AccountControler.OnUpdate()
+
+end
+function AccountControler.OnLoginRspd(...)
+--[[
+	print("rqst")
+	if AccountControler.loginwin==nil then
+		AccountControler.loginwin=UI_Login.New()
+	end
+	AccountControler.loginwin.OpenPanel()
+]]
+	login = MsgType.CGLoginRqst:New()
+	login.account=1111
+	login:Send()
+end
+

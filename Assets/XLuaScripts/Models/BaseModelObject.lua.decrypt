@@ -1,0 +1,42 @@
+--[[
+	@author : Mingming
+	@date 	: 2017-05-31 15:20:49
+	@desc 	:
+	FairyGUI的Lua基类管理器
+]]
+
+BaseModelObject = {}
+BaseModelObject.__index = BaseModelObject;
+
+function BaseModelObject.New(model)
+	BaseModelObject.Class = BaseModelObject
+	BaseModelObject.Name = "BaseModelObject"
+	setmetatable(model,BaseModelObject)
+	model:OnEnter()
+end
+
+--初始化(“:”调用)
+function BaseModelObject:OnEnter()
+	self.AddListeners()
+end
+
+--没用
+function BaseModelObject.OnReadModel()
+
+end
+
+function BaseModelObject:OnExit()
+	self.RemoveListeners()
+end
+
+function BaseModelObject.OnUpdate()
+
+end
+
+function BaseModelObject.AddListeners()
+
+end
+
+function BaseModelObject.RemoveListeners()
+
+end

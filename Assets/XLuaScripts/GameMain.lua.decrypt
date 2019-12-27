@@ -1,0 +1,35 @@
+GameMain={}
+GameMain.__index = GameMain
+GameMain.instance=nil
+function GameMain.getInstance()
+	if not GameMain.instance then
+		GameMain.instance=GameMain.New()
+	end
+	return GameMain.instance
+end
+function GameMain.New()
+	local this={}
+	GameMain.Class = GameMain
+	GameMain.Name = 'GameMain'
+	--初始化
+
+	--数据模型
+	GameMain.AccountModel = AccountModel.getInstance()
+	GameMain.MainCityModel =MainCityModel.getInstance()
+	GameMain.TaskEverydayModel =TaskEverydayModel.getInstance()
+	GameMain.ShareModel =ShareModel.getInstance()
+	--控制器
+	GameMain.AccountControler =AccountControler.getInstance()
+	GameMain.MainCityControler =MainCityControler.getInstance()
+	GameMain.CellLinkSystem =CellLinkSystem.getInstance()
+	GameMain.DialoguesSystem =DialoguesSystem.getInstance()
+	setmetatable(this,GameMain)
+	return this
+end
+GameMain.getInstance()
+
+--lua自定义生命周期   用于模拟unity的生命周期 yzc -2018/10/18
+--为了避免频繁调用的消耗，改为 5s 调用一次
+--function Update()
+
+--end

@@ -1,0 +1,140 @@
+
+Com_UGCLT = {}
+--UI_UGCLT = {}
+function Com_UGCLT.CreateInstance()
+    return UIPackage.CreateObject("ˢ�ؿ�", "UGCLT");
+end
+
+local function Construct(tb,com)
+	tb.m_TicketResourceButton = com:GetChild("TicketResourceButton")
+	tb.m_TicketResourceButton_icon = tb.m_TicketResourceButton:GetChild("icon")
+	tb.m_TicketResourceButton_dianchi_bg = tb.m_TicketResourceButton:GetChild("dianchi_bg")
+	tb.m_TicketResourceButton_TimeText = self.m_TicketResourceButton:GetChild("TimeText")
+	tb.m_TicketResourceButton_num = tb.m_TicketResourceButton:GetChild("num")
+	tb.m_TicketResourceButton_crossButton =tb.m_TicketResourceButton:GetChild("n80")
+	tb.m_TicketResourceButton_batteryBg1 = tb.m_TicketResourceButton:GetChild("bg1")
+	tb.m_TicketResourceButton_batteryBg2 = tb.m_TicketResourceButton:GetChild("bg2")
+	tb.m_TicketResourceButton_batteryBg3 = tb.m_TicketResourceButton:GetChild("bg3")
+	tb.m_TicketResourceButton_batteryBg4 = tb.m_TicketResourceButton:GetChild("bg4")
+	tb.m_TicketResourceButton_batteryBg5 = tb.m_TicketResourceButton:GetChild("bg5")
+	tb.m_TicketResourceButton_dianchi_num_list = tb.m_TicketResourceButton:GetChild("dianchi_num_list");
+	tb.m_TicketResourceButton_PowerFullState = tb.m_TicketResourceButton:GetController("PowerFullState")
+
+	tb.m_GoldResourceButton = com:GetChild("GoldResourceButton")
+	tb.m_GoldResourceButton_title =tb.m_GoldResourceButton:GetChild("title")
+	tb.m_TokenButton = com:GetChild("TokenButton")
+	tb.m_TokenButton_title = tb.m_TokenButton:GetChild("title")
+	tb.m_TicketResourceButton.OnClick:Add(function()
+		CS.UILuaWindowBase.ShowWindow("UI_GetPower")
+	end)
+	tb.m_GoldResourceButton.OnClick:Add(function()
+		CS.EventCtrl.inst:LuaTriggerEvent("HANDLE_WINDOW_OPENPAYSHOP","int",{1})
+	end)
+
+	UI_UGCLT.AddListeners()
+end
+
+function Com_UGCLT.new(com)
+    tb = {}
+    setmetatable(tb,{__mode = "v"})
+    ComBase.new(tb)
+    Construct(tb,com)
+    tb.com = com
+    return tb;
+end
+
+
+function Com_UGCLT.UIGoldInfo(goldCount)
+	local goldCountStr = tostring(goldCount)
+	if goldCountStr.Length >3 then
+		local goldCountTemp = goldCountStr
+		if goldCountStr.Length%3 ==0 then
+			for i=0,goldCountTemp.Length/3-1 do
+				goldCountStr =  goldCountStr.Insert(goldCountTemp.Length - 3 * (i + 1), ",");
+			end
+		else
+			for i=0,goldCountTemp.Length/3 do
+				goldCountStr = goldCountStr.Insert(goldCountTemp.Length-3*(i+1),",")
+			end
+		end
+	end
+	self.m_GoldResourceButton_title.text = goldCountStr
+end
+
+m_timeCD = nil
+function Com_UGCLT.UIPowerInfo(actionPoint)
+	local m_cdTime = CS.MatchTreeProxy.inst:GetPowerCDTime()
+	local m_maxTime = CS.MatchTreeProxy.inst:GetPowerMaxTime()
+	--local WorldParconfig= CS.WorldParconfigManager.Instance():GetConfig(10101)
+	tb.m_TicketResourceButton_dianchi_num_list.numItems = actionPoint<5 and actionPoint or 5
+	tb.m_TicketResourceButton.m_num.text = tostring(tb.m_TicketResourceButton.m_dianchi_num_list.numItems)
+	if WorldParconfig~=nil then
+		if m_maxTime == 0 then
+			if actionPoint >= WorldParconfig.parameter1 then
+				if m_timeCD~=nil then
+					m_timeCD:Stop()
+				end
+				tb.m_TicketResourceButton_TimeText.text = ""
+				tb.m_TicketResourceButton_PowerFullState.selectedIndex = 0
+			else
+				tb.m_TicketResourceButton_PowerFullState.selectedIndex  = 1
+				m_timeCD = CS.TimeCoolDown.Begin(self.m_TicketResourceButton_TimeText,m_maxTime)
+				m_timeCD.mTimeType = CS.TimeCoolDown.TimeType.FormatTimeSpanMS;
+				m_timeCD.OnFinish =  CS.DelegateToLua.SetDelegate(m_timeCD.OnFinish,"",function() CS.MatchTreeProxy.inst:SendAction() end)
+			end
+		else
+			self.m_TicketResourceButton_PowerFullState.selectedIndex = 2
+			self.m_TicketResourceButton.title  = "��"
+			self.m_TicketResourceButton_num.text = "��"
+			m_timeCD = CS.TimeCoolDown.Begin(self.m_TicketResourceButton_TimeText,m_maxTime)
+			m_timeCD.mTimeType = CS.TimeCoolDown.TimeType.FormatDayORHM2
+			m_timeCD.OnFinish =  CS.DelegateToLua.SetDelegate(m_timeCD.OnFinish,"",function() CS.MatchTreeProxy.inst:SendAction() end)
+		end
+	end
+end
+
+
+
+function Com_UGCLT.UITokenCoinInfo()
+	local ret = CellLinkSystem.CallContractFunction(false,CellLinkSystem.TokenContractAddress,CellLinkSystem.masterKeyName,CellLinkSystem.pathKey, 1, CellLinkSystem.masterKeyName,CellLinkSystem.pathKey,"getBalanceof",{CellLinkSystem.rawAddress},CellLinkSystem.rawAddress,false)
+	if ret~=false then
+		local str =  string.sub(ret,string.find(ret,',')+1,string.find(ret,']')-1)
+        if CS.UnityEngine.Application.platform == CS.UnityEngine.RuntimePlatform.Android or CS.UnityEngine.Application.platform == CS.UnityEngine.RuntimePlatform.IPhonePlayer then
+            str = string.sub(str,string.find(str,"\n")+1)
+        else
+            str = string.sub(str,string.find(str,"\r\n")+2)
+        end
+        str = string.gsub(str,"^%s*(.-)%s*$","%1")
+        tb.m_TokenButton.title = str
+        CellLinkSystem.Coin = str;
+    else
+        tb.m_TokenButton.title = 0
+    end
+end
+
+function Com_UGCLT.RefreshGoldInfo()
+	Com_UGCLT.UIGoldInfo(CS.MyPlayerInfo.inst.Gold)
+end
+
+function Com_UGCLT.RefreshPowerInfo()
+	Com_UGCLT.UIPowerInfo(CS.MyPlayerInfo.inst.Action)
+end
+
+function Com_UGCLT.RefreshUGCLTInfo()
+	Com_UGCLT.RefreshGoldInfo()
+	Com_UGCLT.RefreshPowerInfo()
+	Com_UGCLT.UITokenCoinInfo()
+end
+
+
+function Com_UGCLT.AddListeners()
+	--CS.EventCtrl.inst:LuaAddEventListener("EVENT_REFRESH_REDHINT","int" ,UI_UGCLT.UIPowerInfo)
+	CS.EventCtrl.inst:LuaAddEventListener("EVENT_RES_UPDATE",UI_UGCLT.RefreshUGCLTInfo)
+	--CS.EventCtrl.inst:LuaAddEventListener(tostring(MsgType.GC_ActionPointInfoRspd))
+end
+
+function Com_UGCLT.RemoveListeners()
+	--CS.EventCtrl.inst:LuaRemoveEventListener("EVENT_REFRESH_REDHINT","int" ,UI_MainCity.RefreshRedHint);
+	CS.EventCtrl.inst:LuaRemoveEventListener("EVENT_RES_UPDATE",UI_UGCLT.RefreshUGCLTInfo)
+end
+

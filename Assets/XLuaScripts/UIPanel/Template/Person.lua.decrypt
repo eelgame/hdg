@@ -1,0 +1,10 @@
+local Person=class("Person")
+function Person:Ctor()
+ name="hello"
+print('Ctor'..name)
+end
+function Person:Talk()
+print(name)
+end
+local per=Person.New()
+per.Talk();

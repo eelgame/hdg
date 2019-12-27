@@ -1,0 +1,18 @@
+require "NetWork.MsgType"
+local LoginRspd=class("LoginRspd")
+function LoginRspd:Ctor()
+CMD=MsgType.LoginRspdCMD
+errorCode=100
+currentRoleUID=10101
+--print(CMD)
+end
+function LoginRspd:GetCMD()
+print("dasdasd"..CMD)
+ return CMD
+end
+function LoginRspd:ParseMsg(strJson)
+result = json.decode(strJson)
+errorCode=result['errorCode']
+currentRoleUID=result['currentRoleUID']
+end
+return LoginRspd
